@@ -17,8 +17,13 @@
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
 version = VERSION_NAME
 group = GROUP
+
+
 
 def isReleaseBuild() {
   return VERSION_NAME.contains("SNAPSHOT") == false

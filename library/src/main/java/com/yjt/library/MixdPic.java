@@ -87,6 +87,10 @@ public class MixdPic extends ViewGroup {
         removeAllViews();
     }
 
+    /**
+     * 添加视图子view
+     * @param view 添加的view
+     */
     public void addNewChild(View view) {
         if (view.getParent() != null) {
             ((ViewGroup) view.getParent()).removeView(view);
@@ -95,6 +99,11 @@ public class MixdPic extends ViewGroup {
         mChildList.add(view);
     }
 
+    /**
+     * 添加视图子view
+     * @param view 添加的view
+     * @param layoutParam layoutParam
+     */
     public void addNewChild(View view, LayoutParam layoutParam) {
         if (view.getParent() != null) {
             ((ViewGroup) view.getParent()).removeView(view);
@@ -116,10 +125,20 @@ public class MixdPic extends ViewGroup {
         return new LayoutParam(p.width, p.height, Gravity.BOTTOM);
     }
 
+
+    /**
+     * 添加文字
+     * @param text
+     */
     public void addTextChild(CharSequence text) {
         mChildList.add(text);
     }
 
+    /**
+     * 添加文字
+     * @param text 文字
+     * @param textPaint 该文字所使用的paint
+     */
     public void addTextChild(CharSequence text, TextPaint textPaint) {
         mChildList.add(text);
         mPaintSparseArray.put(mChildList.size() - 1, textPaint);
@@ -140,7 +159,7 @@ public class MixdPic extends ViewGroup {
             Object object = mChildList.get(i);
             if (object instanceof View) {
                 View view = (View) object;
-                measureChildWithMargins(view, widthMeasureSpec, 0,heightMeasureSpec,0);
+                measureChildWithMargins(view, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 measureChildView(view);
             } else if (object instanceof CharSequence) {
                 CharSequence charSequence = (CharSequence) object;
@@ -157,10 +176,6 @@ public class MixdPic extends ViewGroup {
         mHeight = mHeight + mLineOffset * (Math.max(mEachLineRect.size() - 1, 0));
         setMeasuredDimension(MeasureSpec.makeMeasureSpec(mWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.EXACTLY));
     }
-
-    /**
-     * @param charSequence
-     */
     private void measureChildText(CharSequence charSequence, TextPaint textPaint) {
         int end = 0;
         do {
@@ -177,7 +192,7 @@ public class MixdPic extends ViewGroup {
         if (textPaint == null) {
             textPaint = mPaint;
         }
-        if (mCurrentLineRect != null && textPaint.getTextSize()-1 > mCurrentLineRect.leaveWidth()) {
+        if (mCurrentLineRect != null && textPaint.getTextSize() - 1 > mCurrentLineRect.leaveWidth()) {
             mCurrentLineRect.full = true;
         }
         if (mCurrentLineRect == null || mCurrentLineRect.full) {
@@ -226,9 +241,9 @@ public class MixdPic extends ViewGroup {
     private final void addViewEntry(View view, RectWapper currentWrapper) {
         final int height = view.getMeasuredHeight();
         final int width = view.getMeasuredWidth();
-        final MarginLayoutParams marginLayoutParams= (MarginLayoutParams) view.getLayoutParams();
-        final int realWidth=width+marginLayoutParams.leftMargin+marginLayoutParams.rightMargin;
-        final int realheight=height+marginLayoutParams.bottomMargin+marginLayoutParams.topMargin;
+        final MarginLayoutParams marginLayoutParams = (MarginLayoutParams) view.getLayoutParams();
+        final int realWidth = width + marginLayoutParams.leftMargin + marginLayoutParams.rightMargin;
+        final int realheight = height + marginLayoutParams.bottomMargin + marginLayoutParams.topMargin;
         if (currentWrapper == null || currentWrapper.full || currentWrapper.leaveWidth() < realWidth) {
             mCurrentLineRect = makeLineRect(caclueLineHeight(null, realheight), currentWrapper, mCurrentLine++);
             mEachLineRect.add(mCurrentLineRect);
@@ -361,8 +376,18 @@ public class MixdPic extends ViewGroup {
         }
         left = viewLayoutEntry.rect.left + marginLayoutParams.leftMargin;
         right = left + viewLayoutEntry.rect.width();
-        view.layout(left+lineRectWrapper.rect.left, top, right+lineRectWrapper.rect.left, bottom);
+        view.layout(left + lineRectWrapper.rect.left, top, right + lineRectWrapper.rect.left, bottom);
     }
+
+
+    public int getLineOffset() {
+        return mLineOffset;
+    }
+
+    public void setLineOffset(int lineOffset) {
+        this.mLineOffset = lineOffset;
+    }
+
 
     /**
      * 普通是视图的entry
@@ -387,15 +412,6 @@ public class MixdPic extends ViewGroup {
                     '}';
         }
     }
-
-    public int getLineOffset() {
-        return mLineOffset;
-    }
-
-    public void setLineOffset(int lineOffset) {
-        this.mLineOffset = lineOffset;
-    }
-
 
     /**
      * 文字的staticlayout控制类
@@ -431,10 +447,6 @@ public class MixdPic extends ViewGroup {
         public int y;//相对于rect top的平移量
         public boolean full;//是否满行
         public int lineNumber;//哪个行的
-        public int paddingTop;
-        public int paddingLeft;
-        public int paddingRight;
-        public int paddingBottom;
 
         public RectWapper(Rect rect, int lineNumber) {
             this.rect = rect;
