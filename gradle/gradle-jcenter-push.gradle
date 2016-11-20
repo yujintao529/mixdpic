@@ -20,29 +20,27 @@ version = VERSION_NAME
 group = GROUP
 
 
+println "~~~~~~"+project.archivesBaseName+"~~~~~~~"
 
-
-
-android {
-    libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File(
-                    output.outputFile.parent,
-                    POM_ARTIFACT_ID + ".aar".toLowerCase())
-        }
-    }
-}
-configurations.create("jcenter_upload")
+project.archivesBaseName=POM_ARTIFACT_ID
+//android {
+//    libraryVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            output.outputFile = new File(
+//                    output.outputFile.parent,
+//                    POM_ARTIFACT_ID + ".aar".toLowerCase())
+//        }
+//    }
+//}
+//configurations.create("jcenter_upload")
 install {
     if (project.getPlugins().hasPlugin('com.android.application') ||
             project.getPlugins().hasPlugin('com.android.library')) {
         repositories.mavenInstaller {
-            configuration = configurations.jcenter_upload
-
+            configuration = configurations.archives
             pom.groupId = GROUP
             pom.artifactId = POM_ARTIFACT_ID
             pom.version = VERSION_NAME
-
             pom.project {
                 name POM_NAME
                 packaging POM_PACKAGING
@@ -149,9 +147,9 @@ if (JavaVersion.current().isJava8Compatible()) {
 artifacts {
     if (project.getPlugins().hasPlugin('com.android.application') ||
             project.getPlugins().hasPlugin('com.android.library')) {
-        add("jcenter_upload",androidSourcesJar)
-        add("jcenter_upload",androidJavadocsJar)
-        add("jcenter_upload",project.file("build/outputs/aar/mixdpic.aar"))
+        add("archives",androidSourcesJar)
+        add("archives",androidJavadocsJar)
+//        add("archives",project.file("build/outputs/aar/mixdpic.aar"))
     } else {
         archives sourcesJar //这个和add 作用是一样的
         archives javadocJar
@@ -164,9 +162,9 @@ artifacts {
 
 install{
     doFirst {
-        def configuration = project.configurations.getByName("jcenter_upload")//获取名字为archives的configuration
+        def configuration = project.configurations.getByName("archives")//获取名字为archives的configuration
         def files = configuration.getArtifacts().files.getFiles()//获取artifacts 发布的文件
-        System.out.println("jcenter_upload files length "+files.size())
+        println("archives files length "+files.size())
         files.each { file ->
             System.out.println("files " + file.getName())
         }
@@ -180,7 +178,7 @@ bintray {
 
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.key")
-    configurations = ['jcenter_upload'] //使用自己的配置
+    configurations = ['archives'] //使用自己的配置
     pkg {
         repo = "repo"
         //这个是在jcenter上建立的仓库名字，其实就是一个组织结构，例如，你可以在自己的账户上建立一个jcenter，然后在这个jcenter上建立这个package。此时这个repo就写jcenter
