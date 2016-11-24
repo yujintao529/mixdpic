@@ -15,14 +15,14 @@
  */
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-
+apply plugin: 'signing'
 version = VERSION_NAME
 group = GROUP
 
 
-println "~~~~~~"+project.archivesBaseName+"~~~~~~~"
+println "~~~~~~" + project.archivesBaseName + "~~~~~~~"
 
-project.archivesBaseName=POM_ARTIFACT_ID
+project.archivesBaseName = POM_ARTIFACT_ID
 //android {
 //    libraryVariants.all { variant ->
 //        variant.outputs.each { output ->
@@ -37,10 +37,12 @@ install {
     if (project.getPlugins().hasPlugin('com.android.application') ||
             project.getPlugins().hasPlugin('com.android.library')) {
         repositories.mavenInstaller {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             configuration = configurations.archives
             pom.groupId = GROUP
             pom.artifactId = POM_ARTIFACT_ID
             pom.version = VERSION_NAME
+
             pom.project {
                 name POM_NAME
                 packaging POM_PACKAGING
@@ -78,13 +80,11 @@ install {
 
         task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
             classifier = 'javadoc'
-            baseName = POM_ARTIFACT_ID
             from androidJavadocs.destinationDir
         }
 
         task androidSourcesJar(type: Jar) {
             classifier = 'sources'
-            baseName = POM_ARTIFACT_ID
             from android.sourceSets.main.java.source
         }
     } else {
@@ -119,6 +119,7 @@ install {
                         name POM_DEVELOPER_NAME
                     }
                 }
+
             }
         }
         task sourcesJar(type: Jar, dependsOn: classes) {
@@ -147,9 +148,8 @@ if (JavaVersion.current().isJava8Compatible()) {
 artifacts {
     if (project.getPlugins().hasPlugin('com.android.application') ||
             project.getPlugins().hasPlugin('com.android.library')) {
-        add("archives",androidSourcesJar)
-        add("archives",androidJavadocsJar)
-//        add("archives",project.file("build/outputs/aar/mixdpic.aar"))
+        add("archives", androidSourcesJar)
+        add("archives", androidJavadocsJar)
     } else {
         archives sourcesJar //这个和add 作用是一样的
         archives javadocJar
@@ -158,16 +158,16 @@ artifacts {
 
 }
 
+signing {
+    sign configurations.archives
+}
 
-
-install{
-    doFirst {
-        def configuration = project.configurations.getByName("archives")//获取名字为archives的configuration
-        def files = configuration.getArtifacts().files.getFiles()//获取artifacts 发布的文件
-        println("archives files length "+files.size())
-        files.each { file ->
-            System.out.println("files " + file.getName())
-        }
+bintrayUpload << {
+    def configuration = project.configurations.getByName("archives")//获取名字为archives的configuration
+    def files = configuration.getArtifacts().files.getFiles()//获取artifacts 发布的文件
+    println("archives files length " + files.size())
+    files.each { file ->
+        System.out.println("files " + file.getName())
     }
 }
 Properties properties = new Properties()
@@ -175,10 +175,9 @@ properties.load(project.rootProject.file('gradle/local.properties').newDataInput
 bintray {
 
 
-
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.key")
-    configurations = ['archives'] //使用自己的配置
+    configurations = ['archives']
     pkg {
         repo = "repo"
         //这个是在jcenter上建立的仓库名字，其实就是一个组织结构，例如，你可以在自己的账户上建立一个jcenter，然后在这个jcenter上建立这个package。此时这个repo就写jcenter

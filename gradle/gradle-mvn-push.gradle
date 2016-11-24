@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ *
+ * 已经废弃了，使用jcenter进行上传并同步，原因你懂的
+ *
+ */
+
+
 apply plugin: 'maven'
 apply plugin: 'signing'
 
